@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 Mix Validade - PCEP | Neon Analytics Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f5ff;
+            --neon-green: #00ff9d;
+            --neon-red: #ff006e;
+            --neon-yellow: #ffbe00;
+            --dark-bg: #0a0e17;
+            --card-bg: #111827;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #1f2937;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(0, 245, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(0, 255, 157, 0.03) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--neon-blue);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .sync-status.syncing i {
+            animation: spin 1s linear infinite;
+            color: var(--neon-blue);
+        }
+
+        .sync-status.synced i {
+            color: var(--success);
+        }
+
+        .sync-status.error i {
+            color: var(--danger);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, var(--info), #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--card-bg);
+            border-color: var(--neon-blue);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-icon.total { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+        .stat-icon.available { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .stat-icon.damaged { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .stat-icon.blocked { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .stat-icon.green { background: rgba(0, 255, 157, 0.2); color: var(--neon-green); }
+        .stat-icon.attention { background: rgba(255, 190, 0, 0.2); color: var(--neon-yellow); }
+        .stat-icon.red { background: rgba(255, 0, 110, 0.2); color: var(--neon-red); }
+        .stat-icon.expired { background: rgba(100, 100, 100, 0.3); color: var(--text-secondary); }
+
+        .stat-info h3 {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-info .subtext {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(255, 0, 110, 0.1));
+            border: 1px solid var(--danger);
+            border-left: 4px solid var(--neon-red);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-banner i {
+            color: var(--neon-red);
+            font-size: 1.25rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .alert-banner .content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-banner .content p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            border-color: var(--neon-blue);
+        }
+
+        .filter-btn.critical {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .filter-btn.critical.active {
+            background: var(--danger);
+            color: white;
+        }
+
+        .filter-btn.clear {
+            color: var(--text-secondary);
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .table-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+        }
+
+        .table-header h3 i {
+            color: var(--neon-blue);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: rgba(0, 245, 255, 0.05);
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        th:hover {
+            color: var(--neon-blue);
+        }
+
+        th.sorted-asc::after {
+            content: " ▲";
+            color: var(--neon-blue);
+        }
+
+        th.sorted-desc::after {
+            content: " ▼";
+            color: var(--neon-blue);
+        }
+
+        td {
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        tbody tr.critical-row {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--neon-red);
+        }
+
+        tbody tr.warning-row {
+            border-left: 3px solid var(--neon-yellow);
+        }
+
+        tbody tr.safe-row {
+            border-left: 3px solid var(--neon-green);
+        }
+
+        tbody tr.expired-row {
+            background: rgba(100, 100, 100, 0.15);
+            border-left: 3px solid var(--text-secondary);
+            opacity: 0.85;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-safe {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-attention {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .status-expired {
+            background: rgba(100, 100, 100, 0.3);
+            color: var(--text-secondary);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.375rem;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            background: var(--dark-bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .action-btn:hover {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+        }
+
+        .action-btn.danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .footer-info span {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .footer-info i {
+            color: var(--neon-blue);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 23, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--neon-blue);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            th, td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Progress bar for expiration */
+        .expiry-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--dark-bg);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.375rem;
+        }
+
+        .expiry-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .expiry-progress-bar.safe { background: var(--success); }
+        .expiry-progress-bar.attention { background: var(--warning); }
+        .expiry-progress-bar.critical { 
+            background: linear-gradient(90deg, var(--danger), var(--neon-red));
+            animation: pulse 2s infinite;
+        }
+        .expiry-progress-bar.expired { background: var(--text-secondary); }
+
+        .expiry-days {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">🔄 Sincronizando dados da planilha...</div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Mix Validade - PCEP</span>
+            </div>
+            
+            <div class="sync-status syncing" id="syncStatus">
+                <i class="fas fa-sync-alt"></i>
+                <span id="syncText">Sincronizando...</span>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-outline" onclick="refreshData()">
+                    <i class="fas fa-redo"></i> Atualizar
+                </button>
+                <button class="btn btn-success" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Exportar CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card animate-in" style="animation-delay: 0.1s">
+                <div class="stat-icon total">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total de Registros</h3>
+                    <div class="value" id="statTotal">--</div>
+                    <div class="subtext">Disponíveis</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.15s">
+                <div class="stat-icon available">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Estoque Ativo</h3>
+                    <div class="value" id="statAvailable">--</div>
+                    <div class="subtext">Unidades</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.2s">
+                <div class="stat-icon damaged">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Sem Bloqueio/Avarias</h3>
+                    <div class="value" id="statDamaged">--</div>
+                    <div class="subtext">Unidades danificadas</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.25s">
+                <div class="stat-icon blocked">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Bloqueados</h3>
+                    <div class="value" id="statBlocked">--</div>
+                    <div class="subtext">Requer atenção</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.3s">
+                <div class="stat-icon green">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Zona Verde</h3>
+                    <div class="value" id="statGreen">--</div>
+                    <div class="subtext">+30 dias • Lotes seguros</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.35s">
+                <div class="stat-icon attention">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Atenção</h3>
+                    <div class="value" id="statAttention">--</div>
+                    <div class="subtext">10-30 dias • Monitorar</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.4s">
+                <div class="stat-icon red">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Zona Vermelha</h3>
+                    <div class="value" id="statRed">--</div>
+                    <div class="subtext">&lt;10 dias • Crítico</div>
+                </div>
+            </div>
+            
+            <div class="stat-card animate-in" style="animation-delay: 0.45s">
+                <div class="stat-icon expired">
+                    <i class="fas fa-hourglass-end"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Vencidos</h3>
+                    <div class="value" id="statExpired">--</div>
+                    <div class="subtext">Expirados • Baixar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Alert -->
+        <div class="alert-banner" id="criticalAlert" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div class="content">
+                <h4>⚠️ Itens Críticos Detectados</h4>
+                <p>Produtos com validade próxima requerem atenção imediata.</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por código, descrição ou depósito..." onkeyup="filterTable()">
+            </div>
+            
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Todos</button>
+                <button class="filter-btn critical" data-filter="7" onclick="setFilter('7')">7 dias</button>
+                <button class="filter-btn critical" data-filter="30" onclick="setFilter('30')">30 dias</button>
+                <button class="filter-btn" data-filter="high" onclick="setFilter('high')">Giro Alto</button>
+                <button class="filter-btn critical" data-filter="critical" onclick="setFilter('critical')">Crítico</button>
+                <button class="filter-btn clear" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Limpar
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Produtos por Validade</h3>
+                <span style="font-size: 0.875rem; color: var(--text-secondary);" id="tableCount">Carregando...</span>
+            </div>
+            
+            <div class="table-wrapper">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('deposito')">Depósito</th>
+                            <th onclick="sortTable('codigo')">Código</th>
+                            <th onclick="sortTable('descricao')">Descrição</th>
+                            <th onclick="sortTable('validade')">Validade</th>
+                            <th onclick="sortTable('disponivel')">Disponível</th>
+                            <th onclick="sortTable('avaria')">Avaria</th>
+                            <th onclick="sortTable('bloqueado')">Bloqueado</th>
+                            <th onclick="sortTable('giro')">Giro/Dia</th>
+                            <th onclick="sortTable('dias')">Situação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expired Products Section -->
+        <div class="table-container" id="expiredSection" style="display: none;">
+            <div class="table-header">
+                <h3><i class="fas fa-skull"></i> Produtos Vencidos</h3>
+                <span style="font-size: 0.875rem; color: var(--danger);" id="expiredCount">0 lotes</span>
+            </div>
+            
+            <div class="table-wrapper">
+                <table id="expiredTable">
+                    <thead>
+                        <tr>
+                            <th>Depósito</th>
+                            <th>Código</th>
+                            <th>Descrição</th>
+                            <th>Validade</th>
+                            <th>Disponível</th>
+                            <th>Avaria</th>
+                            <th>Bloqueado</th>
+                            <th>Dias Vencido</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiredBody">
+                        <!-- Expired items will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-info">
+                <span><i class="fas fa-rotate"></i> Auto-sync: 5min</span>
+                <span><i class="fas fa-keyboard"></i> Ctrl+F Busca</span>
+                <span><i class="fas fa-file-export"></i> Ctrl+E Exportar</span>
+            </div>
+            <div>
+                <span>Atualizado: <strong id="lastUpdate">--:--:--</strong></span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTTbDemfwAw-yIPgp9TCKDynQy2s-7yo57v4m5-5knXyBNFBwCyH5iBqL-93TZ6HLg5Uod5wxSwo_pu/pub?gid=641828317&single=true&output=csv';
+        const AUTO_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
+        
+        // State
+        let rawData = [];
+        let filteredData = [];
+        let currentSort = { column: null, direction: 'asc' };
+        let currentFilter = 'all';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            setupKeyboardShortcuts();
+            startAutoSync();
+        });
+        
+        // Load and parse CSV data
+        async function loadData() {
+            showLoading(true);
+            updateSyncStatus('syncing', 'Sincronizando...');
+            
+            try {
+                const response = await fetch(CSV_URL + '&t=' + Date.now());
+                if (!response.ok) throw new Error('Falha ao carregar dados');
+                
+                const csvText = await response.text();
+                rawData = parseCSV(csvText);
+                processData();
+                
+                updateSyncStatus('synced', 'Sincronizado ✓');
+                updateLastUpdated();
+                renderTables();
+                updateStats();
+                showCriticalAlert();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                updateSyncStatus('error', 'Erro na sincronização');
+                document.getElementById('tableBody').innerHTML = `
+                    <tr><td colspan="10" class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Erro ao carregar dados. Verifique sua conexão e tente novamente.</p>
+                        <button class="btn btn-outline" onclick="loadData()" style="margin-top: 1rem;">
+                            <i class="fas fa-redo"></i> Tentar Novamente
+                        </button>
+                    </td></tr>
+                `;
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Parse CSV with Brazilian number format support
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                // Handle quoted values with commas
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of lines[i]) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+                
+                if (values.length >= headers.length) {
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        let value = values[index] || '';
+                        // Remove quotes
+                        value = value.replace(/^"|"$/g, '');
+                        // Convert Brazilian number format to float
+                        if (['disponivel', 'avaria', 'bloqueado', 'giro dia'].includes(header)) {
+                            value = parseFloat(value.replace(',', '.')) || 0;
+                        }
+                        row[header] = value;
+                    });
+                    
+                    // Parse date
+                    if (row.validade) {
+                        const [day, month, year] = row.validade.split('/');
+                        row.validadeDate = new Date(year, month - 1, day);
+                    }
+                    
+                    data.push(row);
+                }
+            }
+            return data;
+        }
+        
+        // Process data: calculate days to expiry, status, etc.
+        function processData() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            filteredData = rawData.map(item => {
+                const expiryDate = item.validadeDate;
+                const diffTime = expiryDate - today;
+                const daysUntilExpiry = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let status, statusClass, progressClass;
+                
+                if (daysUntilExpiry < 0) {
+                    status = 'Vencido';
+                    statusClass = 'expired';
+                    progressClass = 'expired';
+                } else if (daysUntilExpiry < 10) {
+                    status = 'Crítico';
+                    statusClass = 'critical';
+                    progressClass = 'critical';
+                } else if (daysUntilExpiry < 30) {
+                    status = 'Atenção';
+                    statusClass = 'attention';
+                    progressClass = 'attention';
+                } else {
+                    status = 'Seguro';
+                    statusClass = 'safe';
+                    progressClass = 'safe';
+                }
+                
+                return {
+                    ...item,
+                    daysUntilExpiry,
+                    status,
+                    statusClass,
+                    progressClass,
+                    isExpired: daysUntilExpiry < 0,
+                    isCritical: daysUntilExpiry >= 0 && daysUntilExpiry < 10
+                };
+            });
+        }
+        
+        // Render main products table
+        function renderTables() {
+            const tbody = document.getElementById('tableBody');
+            const expiredBody = document.getElementById('expiredBody');
+            const expiredSection = document.getElementById('expiredSection');
+            
+            // Filter data
+            let displayData = [...filteredData];
+            
+            if (currentFilter === '7') {
+                displayData = displayData.filter(d => d.daysUntilExpiry >= 0 && d.daysUntilExpiry <= 7);
+            } else if (currentFilter === '30') {
+                displayData = displayData.filter(d => d.daysUntilExpiry >= 0 && d.daysUntilExpiry <= 30);
+            } else if (currentFilter === 'high') {
+                displayData = displayData.filter(d => d['giro dia'] > 10);
+            } else if (currentFilter === 'critical') {
+                displayData = displayData.filter(d => d.isCritical);
+            }
+            
+            // Apply search
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                displayData = displayData.filter(d => 
+                    d.codigo?.toString().includes(searchTerm) ||
+                    d.descricao?.toLowerCase().includes(searchTerm) ||
+                    d.deposito?.toString().includes(searchTerm)
+                );
+            }
+            
+            // Sort
+            if (currentSort.column) {
+                displayData.sort((a, b) => {
+                    let valA = a[currentSort.column] || '';
+                    let valB = b[currentSort.column] || '';
+                    
+                    if (typeof valA === 'number' && typeof valB === 'number') {
+                        return currentSort.direction === 'asc' ? valA - valB : valB - valA;
+                    }
+                    
+                    valA = valA.toString().toLowerCase();
+                    valB = valB.toString().toLowerCase();
+                    
+                    if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+            
+            // Separate expired items
+            const expiredItems = displayData.filter(d => d.isExpired);
+            const activeItems = displayData.filter(d => !d.isExpired);
+            
+            // Render active products
+            if (activeItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <p>Nenhum produto encontrado com os filtros aplicados</p>
+                </td></tr>`;
+            } else {
+                tbody.innerHTML = activeItems.map(item => createProductRow(item)).join('');
+            }
+            
+            // Render expired products
+            if (expiredItems.length > 0) {
+                expiredSection.style.display = 'block';
+                document.getElementById('expiredCount').textContent = `${expiredItems.length} lotes`;
+                expiredBody.innerHTML = expiredItems.map(item => createExpiredRow(item)).join('');
+            } else {
+                expiredSection.style.display = 'none';
+            }
+            
+            // Update count
+            document.getElementById('tableCount').textContent = `${displayData.length} registros`;
+        }
+        
+        // Create table row for active products
+        function createProductRow(item) {
+            const rowClass = item.isCritical ? 'critical-row' : 
+                           item.statusClass === 'attention' ? 'warning-row' : 
+                           item.statusClass === 'safe' ? 'safe-row' : '';
+            
+            const progressWidth = item.isExpired ? 100 : 
+                                 Math.min(100, Math.max(0, (30 - item.daysUntilExpiry) / 30 * 100));
+            
+            return `
+                <tr class="${rowClass} animate-in">
+                    <td><strong>${item.deposito}</strong></td>
+                    <td><code style="background:var(--dark-bg);padding:2px 6px;border-radius:4px">${item.codigo}</code></td>
+                    <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${item.descricao}">
+                        ${item.descricao}
+                    </td>
+                    <td>
+                        <strong>${item.validade}</strong>
+                        <div class="expiry-progress">
+                            <div class="expiry-progress-bar ${item.progressClass}" style="width:${progressWidth}%"></div>
+                        </div>
+                        <div class="expiry-days">${item.daysUntilExpiry < 0 ? 
+                            `<span style="color:var(--danger)">${Math.abs(item.daysUntilExpiry)} dias vencido</span>` : 
+                            `${item.daysUntilExpiry} dias restantes`}</div>
+                    </td>
+                    <td><strong>${formatNumber(item.disponivel)}</strong></td>
+                    <td style="color:${item.avaria > 0 ? 'var(--warning)' : 'var(--text-secondary)'}">
+                        ${item.avaria > 0 ? formatNumber(item.avaria) : '-'}
+                    </td>
+                    <td style="color:${item.bloqueado > 0 ? 'var(--danger)' : 'var(--text-secondary)'}">
+                        ${item.bloqueado > 0 ? formatNumber(item.bloqueado) : '-'}
+                    </td>
+                    <td><strong>${formatNumber(item['giro dia'])}</strong></td>
+                    <td>
+                        <span class="status-badge status-${item.statusClass}">
+                            <i class="fas fa-${getStatusIcon(item.statusClass)}"></i>
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn" title="Detalhes" onclick="showDetails(${item.codigo})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn danger" title="Baixar estoque" onclick="confirmWriteOff(${item.codigo})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // Create table row for expired products
+        function createExpiredRow(item) {
+            return `
+                <tr class="expired-row animate-in">
+                    <td><strong>${item.deposito}</strong></td>
+                    <td><code style="background:var(--dark-bg);padding:2px 6px;border-radius:4px">${item.codigo}</code></td>
+                    <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${item.descricao}">
+                        ${item.descricao}
+                    </td>
+                    <td style="color:var(--danger)"><strong>${item.validade}</strong></td>
+                    <td>${formatNumber(item.disponivel)}</td>
+                    <td>${item.avaria > 0 ? formatNumber(item.avaria) : '-'}</td>
+                    <td>${item.bloqueado > 0 ? formatNumber(item.bloqueado) : '-'}</td>
+                    <td style="color:var(--danger)"><strong>+${Math.abs(item.daysUntilExpiry)} dias</strong></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn danger" title="Dar baixa" onclick="confirmWriteOff(${item.codigo})">
+                                <i class="fas fa-check-circle"></i> Baixar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // Helper functions
+        function getStatusIcon(statusClass) {
+            const icons = {
+                safe: 'shield-check',
+                attention: 'eye',
+                critical: 'bell',
+                expired: 'hourglass-end'
+            };
+            return icons[statusClass] || 'circle';
+        }
+        
+        function formatNumber(num) {
+            if (typeof num !== 'number') return num;
+            return num % 1 === 0 ? num.toLocaleString('pt-BR') : num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const total = filteredData.length;
+            const available = filteredData.reduce((sum, d) => sum + (d.disponivel || 0), 0);
+            const damaged = filteredData.reduce((sum, d) => sum + (d.avaria || 0), 0);
+            const blocked = filteredData.reduce((sum, d) => sum + (d.bloqueado || 0), 0);
+            const green = filteredData.filter(d => d.daysUntilExpiry >= 30).length;
+            const attention = filteredData.filter(d => d.daysUntilExpiry >= 10 && d.daysUntilExpiry < 30).length;
+            const red = filteredData.filter(d => d.daysUntilExpiry >= 0 && d.daysUntilExpiry < 10).length;
+            const expired = filteredData.filter(d => d.daysUntilExpiry < 0).length;
+            
+            document.getElementById('statTotal').textContent = total.toLocaleString('pt-BR');
+            document.getElementById('statAvailable').textContent = formatNumber(available);
+            document.getElementById('statDamaged').textContent = formatNumber(damaged);
+            document.getElementById('statBlocked').textContent = formatNumber(blocked);
+            document.getElementById('statGreen').textContent = green;
+            document.getElementById('statAttention').textContent = attention;
+            document.getElementById('statRed').textContent = red;
+            document.getElementById('statExpired').textContent = expired;
+        }
+        
+        function showCriticalAlert() {
+            const criticalCount = filteredData.filter(d => d.isCritical).length;
+            const alert = document.getElementById('criticalAlert');
+            
+            if (criticalCount > 0) {
+                alert.style.display = 'flex';
+                alert.querySelector('p').textContent = 
+                    `${criticalCount} produto${criticalCount > 1 ? 's' : ''} com validade crítica - ação necessária!`;
+            } else {
+                alert.style.display = 'none';
+            }
+        }
+        
+        // Filtering and sorting
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-filter="${filter}"]`)?.classList.add('active');
+            renderTables();
+        }
+        
+        function clearFilters() {
+            currentFilter = 'all';
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            renderTables();
+        }
+        
+        function filterTable() {
+            renderTables();
+        }
+        
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update header visual indicators
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            const header = document.querySelector(`th[onclick="sortTable('${column}')"]`);
+            if (header) {
+                header.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            }
+            
+            renderTables();
+        }
+        
+        // UI Functions
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+        }
+        
+        function updateSyncStatus(status, text) {
+            const el = document.getElementById('syncStatus');
+            const txt = document.getElementById('syncText');
+            
+            el.className = `sync-status ${status}`;
+            txt.textContent = text;
+        }
+        
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        
+        function startAutoSync() {
+            setInterval(() => {
+                loadData();
+            }, AUTO_SYNC_INTERVAL);
+        }
+        
+        function refreshData() {
+            loadData();
+        }
+        
+        function exportCSV() {
+            const headers = ['Depósito', 'Código', 'Descrição', 'Validade', 'Disponível', 'Avaria', 'Bloqueado', 'Giro/Dia', 'Dias Restantes', 'Situação'];
+            const rows = filteredData.map(d => [
+                d.deposito, d.codigo, `"${d.descricao}"`, d.validade, 
+                d.disponivel, d.avaria, d.bloqueado, d['giro dia'], 
+                d.daysUntilExpiry, d.status
+            ]);
+            
+            const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `mix-validade-${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+        
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+F for search focus
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                // Ctrl+E for export
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    exportCSV();
+                }
+            });
+        }
+        
+        // Action handlers (placeholders for future implementation)
+        function showDetails(code) {
+            alert(`📋 Detalhes do produto ${code}\n\nFuncionalidade de detalhes em desenvolvimento.`);
+        }
+        
+        function confirmWriteOff(code) {
+            if (confirm(`⚠️ Confirmar baixa do produto ${code}?\n\nEsta ação não pode ser desfeita.`)) {
+                alert(`✅ Produto ${code} marcado para baixa.\n\nIntegração com sistema ERP em desenvolvimento.`);
+            }
+        }
+    </script>
+</body>
+</html>
